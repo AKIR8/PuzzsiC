@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Tilefall: daily tile puzzle</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@500;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--glass:.6;--bg:#f3f0fb;--panel:#fff;--ink:#1d1833;--mute:#6b6488;--line:#d9d3ee;--ok:#12a37f;--sel:#e0561f;--btn:#1d1833;--btnink:#fff;
+ box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#15122a;--panel:#211d3d;--ink:#f1ecff;--mute:#a69fc9;--line:#37315e;--ok:#6fe3c1;--sel:#ffb067;--btn:#f1ecff;--btnink:#15122a}}
+:root[data-theme="dark"]{--bg:#15122a;--panel:#211d3d;--ink:#f1ecff;--mute:#a69fc9;--line:#37315e;--ok:#6fe3c1;--sel:#ffb067;--btn:#f1ecff;--btnink:#15122a}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Bricolage Grotesque",system-ui,sans-serif;min-height:100vh;display:flex;justify-content:center}
+main{width:100%;max-width:540px;padding:16px}
+header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+h1{font-size:1.7rem;font-weight:800;margin:0;letter-spacing:-.02em}
+.bar{display:flex;gap:8px;align-items:center;justify-content:space-between;margin-bottom:10px}
+button{font:inherit;cursor:pointer;border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:999px;padding:8px 14px;font-weight:700}
+button.main{background:var(--btn);color:var(--btnink);border-color:var(--btn)}
+button:focus-visible,.tile:focus-visible{outline:3px solid var(--sel);outline-offset:2px}
+#time{font-variant-numeric:tabular-nums;font-weight:700;background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:8px 14px}
+#grid{position:relative;display:grid;grid-template-columns:repeat(4,1fr);gap:5px;padding:6px;background:var(--panel);border:1px solid var(--line);border-radius:18px;aspect-ratio:1;transition:gap .5s,padding .5s}
+.tile{position:relative;isolation:isolate;border-radius:8px;background-size:400% 400%;border:0;padding:0;transition:border-radius .5s,transform .15s,scale .18s,box-shadow .18s;overflow:visible}
+.tile.now{}
+.tile::before{content:"";position:absolute;inset:0;border-radius:inherit;z-index:1;pointer-events:none;background:linear-gradient(135deg,rgba(255,255,255,.34),rgba(255,255,255,.08) 55%,rgba(255,255,255,.2));-webkit-backdrop-filter:blur(14px) saturate(1.5);backdrop-filter:blur(14px) saturate(1.5);border:1px solid rgba(255,255,255,.45);box-shadow:inset 0 1px 1px rgba(255,255,255,.6),inset 0 -8px 16px rgba(255,255,255,.08)}
+.ld{font-weight:700;border:1px solid var(--line);background:var(--panel);border-radius:999px;padding:8px 14px;cursor:pointer;font-size:.85rem;max-width:48%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ld:focus-within{outline:3px solid var(--sel);outline-offset:2px}
+.tile::before{transition:box-shadow .2s,border-color .2s;
+ background:linear-gradient(145deg,rgba(255,255,255,calc(.14 + var(--glass)*.30)),rgba(255,255,255,calc(.03 + var(--glass)*.06)) 50%,rgba(255,255,255,calc(.10 + var(--glass)*.18)));
+ -webkit-backdrop-filter:blur(calc(3px + var(--glass)*15px)) saturate(1.7);backdrop-filter:blur(calc(3px + var(--glass)*15px)) saturate(1.7);
+ border:1px solid rgba(255,255,255,.4);
+ box-shadow:inset 0 1.5px 1px rgba(255,255,255,.75),inset 0 -1.5px 1px rgba(255,255,255,.25),inset 0 0 14px rgba(255,255,255,.12),0 1px 6px rgba(0,0,0,.18)}
+.tile.now::before{
+ 
+ border-color:rgba(255,255,255,.95);box-shadow:inset 0 2px 2px #fff,inset 0 -2px 2px rgba(255,255,255,.5),inset 0 0 22px rgba(255,255,255,.55),0 0 18px rgba(255,255,255,.45)}
+.glass{display:flex;align-items:center;gap:10px;margin:10px 4px 0;color:var(--mute);font-size:.85rem;font-weight:500}
+.glass input{flex:1;accent-color:var(--ink)}
+#q{flex:1;min-width:0;font:inherit;border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:999px;padding:8px 14px}
+.hint{margin:0 4px 10px;color:var(--mute);font-weight:500;font-size:.9rem;text-align:center;min-height:2.6em}
+.img{position:absolute;inset:0;border-radius:inherit;background-size:400% 400%;filter:blur(11px) saturate(.85);pointer-events:none;transition:filter .6s}
+#grid.done .img{filter:none}
+#discs{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-height:46vh;overflow:auto;padding:4px}
+.disc{display:flex;flex-direction:column;align-items:center;gap:8px;border:0;background:none;padding:6px;color:var(--ink);border-radius:14px}
+.disc b{font-size:.8rem}
+.disc.done{opacity:.7}
+.cv{position:absolute;inset:0;border-radius:50%;overflow:hidden}
+.cv i{position:absolute;inset:-14px;background-size:cover;background-position:center;filter:blur(6px) saturate(1);opacity:0;transition:opacity .6s}
+.cv.on i{opacity:1}
+.cv::after{content:"";position:absolute;inset:0;border-radius:50%;background:conic-gradient(from 20deg,rgba(255,255,255,.35),rgba(255,255,255,0) 25%,rgba(255,255,255,.3) 50%,rgba(255,255,255,0) 75%,rgba(255,255,255,.35))}
+.kw{color:var(--mute);font-size:.68rem;line-height:1.25;text-align:center;max-width:96px}
+.cd{position:relative;width:92px;height:92px;border-radius:50%;background:conic-gradient(from 20deg,#c9d6ff,#e6e6e6,#ffd3f6,#cdeaff,#e9e0ff,#c9d6ff);box-shadow:inset 0 0 0 3px rgba(255,255,255,.55),0 4px 10px rgba(0,0,0,.25);transition:transform .5s}
+.cd::after{content:"";z-index:1;position:absolute;inset:0;margin:auto;width:20px;height:20px;border-radius:50%;background:var(--panel);box-shadow:inset 0 0 0 3px rgba(0,0,0,.12)}
+.hp{position:absolute;z-index:2;bottom:-4px;right:-4px;width:30px;height:30px;display:grid;place-items:center;font-size:1rem;background:var(--panel);border:1px solid var(--line);border-radius:50%}
+.disc:hover .cd,.disc:focus-visible .cd{transform:rotate(90deg)}
+@media (prefers-reduced-motion:reduce){.cd,.img{transition:none}}
+.tile.lock::after{content:"\1F512";position:absolute;top:4px;right:4px;font-size:.7rem;z-index:3;pointer-events:none}
+.tile.sel{outline:3px solid var(--sel);outline-offset:-3px;filter:blur(4px) saturate(1.2);transform:scale(.95)}
+.tile.ok::after{content:"\2713";position:absolute;inset:auto 4px 4px auto;width:22px;height:22px;border-radius:50%;background:var(--ok);color:#111;font-weight:800;display:grid;place-items:center;font-size:.8rem;z-index:3;pointer-events:none}
+.tile.ok{outline:3px solid var(--ok);outline-offset:-3px}
+#grid.done{}
+#grid.done .tile{filter:none;transform:none}
+#grid.done .tile::before{display:none}
+#grid.done{overflow:visible}
+.clip{display:flex;align-items:center;gap:10px;margin:12px 0 8px;background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:6px 14px 6px 6px}
+.play{width:38px;height:38px;padding:0;border-radius:50%;display:grid;place-items:center}
+.wave{display:flex;align-items:center;gap:3px;flex:1;height:30px}
+.wave i{flex:1;background:var(--mute);border-radius:2px;height:100%;transform:scaleY(.3);transform-origin:center;will-change:transform}
+.playing .wave i{animation:b .5s ease-in-out infinite alternate}
+@keyframes b{to{transform:scaleY(.95)}}
+@media (prefers-reduced-motion:reduce){.playing .wave i{animation:none;transform:scaleY(.7)}.tile,#grid{transition:none}}
+.row{display:flex;justify-content:space-between;gap:8px}
+#msg{min-height:1.4em;text-align:center;color:var(--mute);margin:12px 0 0;font-weight:500}
+dialog{border:1px solid var(--line);border-radius:18px;background:var(--panel);color:var(--ink);width:min(92vw,420px);max-height:80vh;padding:18px}
+dialog::backdrop{background:#0008}
+.stats{display:flex;gap:8px;margin:10px 0}
+.stats div{flex:1;background:var(--bg);border-radius:12px;padding:10px;text-align:center}
+.stats b{display:block;font-size:1.3rem}
+.stats span{color:var(--mute);font-size:.8rem}
+#list{list-style:none;margin:0;padding:0;overflow:auto;max-height:46vh}
+#list li button{width:100%;display:flex;justify-content:space-between;border-radius:12px;margin-bottom:6px;font-weight:500}
+.slot{border:1.5px dashed var(--line);border-radius:8px;background:color-mix(in srgb,var(--ink) 5%,transparent);position:relative;min-width:0}
+.slot .tile{position:absolute;inset:0;width:100%}
+#tray{display:flex;flex-wrap:wrap;justify-content:center;gap:2px 0;margin-top:14px;min-height:96px;padding:6px 0}
+#tray .tile{width:12.6%;aspect-ratio:1;margin:0 -.4%;box-shadow:0 4px 10px #0004;cursor:grab}
+.tile{touch-action:none;user-select:none;-webkit-user-select:none}
+.tile.drag{position:fixed;left:0;top:0;z-index:50;pointer-events:none;margin:0;box-shadow:0 12px 26px #0006;transform:none!important;scale:1.06;transition:none;will-change:translate}
+
+.tile.ok{cursor:default}
+#grid.done~#tray{display:none}
+.mvbox{position:relative;margin-top:12px;aspect-ratio:16/9;border-radius:16px;overflow:hidden;background:#000;border:1px solid var(--line)}
+.mvbox video,#mvf{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;filter:blur(16px) saturate(.9);transform:scale(1.15)}
+#grid.done~.mvbox video,#grid.done~.mvbox #mvf{filter:none;transform:none}
+#mvf{background-size:260%;background-position:50% 50%;transition:background-position 1.2s ease}
+.mvbox.hasv #mvf{display:none}.mvbox:not(.hasv) video{display:none}
+.mvbox:not(.live)::after{content:"";position:absolute;inset:0;background:rgba(0,0,0,.35)}
+.mvtag{position:absolute;left:10px;bottom:8px;z-index:2;color:#fff;font-size:.75rem;font-weight:700;text-shadow:0 1px 4px #000a}
+
+.mvbox{position:fixed;left:0;top:0;width:4px;height:4px;margin:0;border:0;opacity:.01;overflow:hidden;pointer-events:none;z-index:-1}
+.mvbox::after,.mvtag,#mvf{display:none!important}
+.vc{position:absolute;inset:0;width:100%;height:100%;border-radius:inherit;filter:blur(7px) saturate(.95);pointer-events:none;transition:filter .6s}
+#grid.done .vc{filter:none}
+</style>
+</head>
+<body>
+<main>
+ <header><h1>Tilefall</h1><span><button id="theme" aria-label="Toggle dark mode">Dark</button> <button id="archBtn">Archive</button></span></header>
+ <div class="bar"><button id="dayBtn" aria-label="Open archive">Day #</button><span id="time">0:00</span></div>
+ <div id="grid" aria-label="Puzzle grid"></div>
+ <div id="tray" aria-label="Loose tiles"></div>
+ <div class="mvbox" id="mvbox"><video id="mv" muted playsinline preload="auto"></video><div id="mvf"></div><span class="mvtag">🎬 Music video · syncs with each tile</span></div>
+ <div class="clip" id="clip">
+  <button class="play main" id="play" aria-label="Play clip">&#9654;</button>
+  <div class="wave" id="wave"></div>
+ </div>
+ <p id="hint" class="hint"></p>
+ <div class="row" style="margin-bottom:8px;display:none"><input id="q" type="search" value="A Friend of a Friend Azkal" aria-label="Search a song"><button id="go" class="main">Find song</button></div>
+ <div class="row" style="margin-bottom:8px;display:none"><label class="ld">Load song<input type="file" id="song" accept="audio/*" hidden> <span id="songName"></span></label><label class="ld">Load cover<input type="file" id="cover" accept="image/*" hidden></label></div>
+ <div class="row"><button id="check" class="main">Check</button><button id="results">See results</button><button id="again">Play again</button></div>
+ <p id="msg" role="status">Tap a tile to hear its clip. Drag it into the grid to place it.</p>
+</main>
+<dialog id="dlg"><div id="dlgBody"></div><p style="text-align:right;margin:12px 0 0"><button id="close">Close</button></p></dialog>
+<script>
+// ====== CONTENT: replace puzzle() with your own images/audio ======
+// Each puzzle needs an image (any URL or data URI) and a short sound clip (any audio URL).
+// Here both are generated from the puzzle number so the page works with no files.
+function rng(s){return function(){s|=0;s=s+0x6D2B79F5|0;let t=Math.imul(s^s>>>15,1|s);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function art(n,size){
+ const r=rng(n*7919),c=document.createElement("canvas");c.width=c.height=size;const x=c.getContext("2d"),h=r()*360;
+ let g=x.createLinearGradient(0,0,0,size);g.addColorStop(0,"hsl("+h+",70%,25%)");g.addColorStop(1,"hsl("+(h+60)+",85%,65%)");x.fillStyle=g;x.fillRect(0,0,size,size);
+ x.fillStyle="hsl("+(h+160)+",95%,70%)";x.beginPath();x.arc(size*(.25+r()*.5),size*(.2+r()*.2),size*(.08+r()*.1),0,7);x.fill();
+ for(let i=0;i<4;i++){x.fillStyle="hsla("+(h+i*25)+",60%,"+(18+i*9)+"%,.95)";x.beginPath();x.moveTo(0,size);
+  const y0=size*(.5+i*.12);for(let k=0;k<=8;k++)x.lineTo(size*k/8,y0-r()*size*.2);x.lineTo(size,size);x.fill()}
+ x.fillStyle="#fff";for(let i=0;i<14;i++){x.globalAlpha=.3+r()*.6;x.fillRect(r()*size,r()*size*.4,size*.008,size*.008)}
+ x.globalAlpha=1;x.font="800 "+size*.12+"px sans-serif";x.fillStyle="#fff";x.textAlign="center";x.fillText("#"+n,size/2,size*.93);
+ return c.toDataURL("image/jpeg",.92)}
+let ac,mg=null;function playClip(n,done){
+ ac=ac||new (window.AudioContext||window.webkitAudioContext)();if(ac.state==="suspended")ac.resume();mg=ac.createGain();mg.connect(ac.destination);const r=rng(n*31),sc=[0,2,3,5,7,8,10],base=196*Math.pow(2,r()>.5?0:.5);
+ let t=ac.currentTime+.05;for(let i=0;i<6;i++){const o=ac.createOscillator(),g=ac.createGain();o.type="triangle";
+  o.frequency.value=base*Math.pow(2,(sc[Math.floor(r()*7)]+(r()>.7?12:0))/12);g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.25,t+.03);g.gain.exponentialRampToValueAtTime(.001,t+.27);
+  o.connect(g).connect(mg);o.start(t);o.stop(t+.28);t+=.27}
+ setTimeout(done,1700)}
+// ====== GAME ======
+const START=Date.UTC(2026,9,10),DAY=864e5,$=id=>document.getElementById(id);
+const today=()=>{const d=new Date();return Math.floor((Date.UTC(d.getFullYear(),d.getMonth(),d.getDate())-START)/DAY)+1};
+let num=((today()-1)%15)+1,slots=[],tray=[],marked=new Set(),solved=false,t0=0,tick=null,secs=0,img="",drag=null;
+const LOCK=[0,15],MAXC=3;let checks=MAXC;
+function ckUI(){const b=$("check");b.textContent="Check · "+"●".repeat(checks)+"○".repeat(MAXC-checks)+" ("+checks+" left)";b.disabled=checks<=0;b.style.opacity=checks<=0?.5:1;b.style.cursor=checks<=0?"not-allowed":"pointer"}
+function store(){try{return JSON.parse(localStorage.getItem("tilefall")||"{}")}catch(e){return{}}}
+function save(o){try{localStorage.setItem("tilefall",JSON.stringify(o))}catch(e){}}
+const fmt=s=>Math.floor(s/60)+":"+String(s%60).padStart(2,"0");
+function dateOf(n){return new Date(START+(n-1)*DAY).toLocaleDateString("en",{month:"long",day:"numeric",timeZone:"UTC"})}
+function load(n){
+ num=n;stopAll();solved=false;secs=0;t0=0;checks=MAXC;ckUI();clearInterval(tick);marked=new Set();$("time").textContent="0:00";
+ img=toURL(art(n,512));hiImg="";buf=null;elAud=null;songFor(n);videoFor(n);const r=rng(n*104729),ids=[];for(let i=1;i<15;i++)ids.push(i);
+ for(let i=ids.length-1;i>0;i--){const j=Math.floor(r()*(i+1));[ids[i],ids[j]]=[ids[j],ids[i]]}
+ tray=ids;slots=Array(16).fill(null);slots[0]=0;slots[15]=15;
+ $("grid").className="";$("dayBtn").textContent="Mystery disc "+n;$("hint").textContent=SONGS[n-1].era+" — "+SONGS[n-1].h;
+ $("msg").textContent="Tap a tile to hear its clip. Drag it into the grid to place it.";render()}
+function mk(id,bg){const d=document.createElement("div");d.className="tile";d.dataset.id=id;
+ d.style.backgroundSize="0";const im=document.createElement("i");im.className="img";im.style.backgroundImage="url("+(bg||img)+")";im.style.backgroundPosition=(id%4)*33.333+"% "+Math.floor(id/4)*33.333+"%";d.appendChild(im);if(mvOK){const c=document.createElement("canvas");c.width=c.height=160;c.className="vc";c.dataset.id=id;d.appendChild(c)}return d}
+function render(){
+ const g=$("grid"),T=$("tray");g.innerHTML="";T.innerHTML="";$("mvf").style.backgroundImage="url("+img+")";
+ slots.forEach((id,pos)=>{const s=document.createElement("div");s.className="slot";s.dataset.pos=pos;
+  if(id!==null){const t=mk(id);if(LOCK.includes(pos))t.classList.add("lock");else if(marked.has(id)&&id===pos)t.classList.add("ok");
+   if(!LOCK.includes(pos))t.onpointerdown=e=>start(e,t,"s",pos);else t.onclick=()=>tapTile(id);s.appendChild(t)}g.appendChild(s)});
+ tray.forEach(id=>{const t=mk(id),r=rng(id*977+num);t.style.transform="rotate("+(r()*18-9).toFixed(1)+"deg) translateY("+(r()*8-4).toFixed(1)+"px)";
+  t.onpointerdown=e=>start(e,t,"t",id);T.appendChild(t)});markNow()}
+function start(e,el,from,ref){
+ if(solved||drag)return;e.preventDefault();
+ if(!t0){t0=Date.now();tick=setInterval(()=>{secs=Math.floor((Date.now()-t0)/1000);$("time").textContent=fmt(secs)},250)}
+ const w=$("grid").children[1].getBoundingClientRect().width;
+ drag={el,from,ref,id:+el.dataset.id,w,x:e.clientX,y:e.clientY,moved:false};el.classList.add("drag");el.style.width=w+"px";el.style.height=w+"px";el.style.transform="";
+ el.style.translate=(e.clientX-w/2)+"px "+(e.clientY-w/2)+"px";document.body.appendChild(el);move(e);
+ addEventListener("pointermove",move);addEventListener("pointerup",end);addEventListener("pointercancel",end)}
+function move(e){if(!drag)return;if(Math.hypot(e.clientX-drag.x,e.clientY-drag.y)>8)drag.moved=true;drag.px=e.clientX;drag.py=e.clientY;
+ if(!drag.raf)drag.raf=requestAnimationFrame(()=>{if(!drag)return;drag.raf=0;drag.el.style.translate=(drag.px-drag.w/2)+"px "+(drag.py-drag.w/2)+"px"})}
+function end(e){
+ removeEventListener("pointermove",move);removeEventListener("pointerup",end);removeEventListener("pointercancel",end);
+ const d=drag;drag=null;d.el.remove();
+ if(!d.moved){render();tapTile(d.id);return}
+ const hit=document.elementFromPoint(e.clientX,e.clientY),slot=hit&&hit.closest&&hit.closest(".slot"),pos=slot?+slot.dataset.pos:-1;
+ // take the tile out of where it came from
+ if(d.from==="s")slots[d.ref]=null;else tray=tray.filter(i=>i!==d.id);
+ marked.delete(d.id);
+ if(pos>=0&&!LOCK.includes(pos)){
+  const other=slots[pos];
+  if(other!==null){marked.delete(other);if(d.from==="s")slots[d.ref]=other;else tray.push(other)}
+  slots[pos]=d.id}
+ else if(d.from==="s")tray.push(d.id);
+ else tray.splice(Math.min(d.ref,tray.length),0,d.id);
+ render();
+ if(slots.every((id,p)=>id===p))win()}
+function check(){
+ if(solved||checks<=0)return;checks--;ckUI();let n=0;
+ slots.forEach((id,pos)=>{if(id!==null&&id===pos&&!LOCK.includes(pos)){marked.add(id);n++}});
+ render();
+ if(slots.every((id,p)=>id===p))win();
+ else $("msg").textContent=(n?"Green ticks mark tiles in the right place. Unmarked tiles still need to move.":"None of the placed tiles are in the right place yet.")+" "+(checks?checks+(checks>1?" checks":" check")+" left.":"No checks left.")}
+function win(){
+ solved=true;clearInterval(tick);if(mvOK){clearTimeout(vt);mvEl.loop=true;try{mvEl.currentTime=0}catch(e){}mvEl.play().catch(()=>{})}if(t0)secs=Math.floor((Date.now()-t0)/1000);
+ const hi=hiImg||toURL(art(num,1024));$("grid").className="done";
+ [...$("grid").children].forEach((s,i)=>{s.innerHTML="";s.style.border="0";const wt=mk(i,hi);if(LOCK.includes(i))wt.classList.add("lock");wt.onclick=()=>tapTile(i);s.appendChild(wt)});
+ $("grid").querySelectorAll(".tile").forEach(t=>t.style.filter="none");
+ $("msg").textContent="Solved in "+fmt(secs)+" — it was “"+SONGS[num-1].t+"” by "+SONGS[num-1].a+".";
+ const s=store();s.p=s.p||{};if(!s.p[num]||secs<s.p[num])s.p[num]=secs;save(s);setTimeout(()=>solvedPopup(num),1400)}
+function nextUnsolved(){const p=store().p||{};for(let i=1;i<=SONGS.length;i++){const n=((num-1+i)%SONGS.length)+1;if(p[n]==null)return n}return null}
+function solvedPopup(n){if(!solved||n!==num)return;const S=SONGS[n-1],nx=nextUnsolved(),used=MAXC-checks;
+ show("<div style='text-align:center'><img alt='' src='"+(hiImg||img)+"' style='width:min(60vw,220px);aspect-ratio:1;object-fit:cover;border-radius:16px;box-shadow:0 8px 24px #0005'><h2 style='margin:12px 0 2px'>"+esc(S.t)+"</h2><p style='margin:0;color:var(--mute);font-weight:700'>"+esc(S.a)+"</p><p style='margin:4px 0 0;color:var(--mute);font-size:.85rem'>"+esc(S.era)+"</p><div class='stats'><div><b>"+fmt(secs)+"</b><span>Time</span></div><div><b>"+used+"/"+MAXC+"</b><span>Checks used</span></div></div><div class='row' style='margin-top:6px'><button id='pm'>Play more</button><button id='nx' class='main'>"+(nx?"Next song":"Back to discs")+"</button></div></div>");
+ $("pm").onclick=()=>{$("dlg").close();archive()};$("nx").onclick=()=>{$("dlg").close();nx?load(nx):archive()}}
+function stats(){const p=store().p||{},v=Object.values(p);
+ return {n:v.length,avg:v.length?Math.round(v.reduce((a,b)=>a+b,0)/v.length):0,best:v.length?Math.min(...v):0,p}}
+function show(html){$("dlgBody").innerHTML=html;$("dlg").showModal()}
+function statHtml(){const s=stats();return '<div class="stats"><div><b>'+s.n+'</b><span>Solved</span></div><div><b>'+(s.n?fmt(s.avg):"–")+'</b><span>Avg time</span></div><div><b>'+(s.n?fmt(s.best):"–")+'</b><span>Best time</span></div></div>'}
+function archive(){
+ const s=stats();let h="<h2 style='margin:0'>Archive</h2>"+statHtml()+"<ul id='list'>";
+ for(let n=today();n>=Math.max(1,today()-49);n--)h+="<li><button data-n='"+n+"'><span>#"+n+" · "+dateOf(n)+"</span><span>"+(s.p[n]!=null?"✓ "+fmt(s.p[n]):"To play")+"</span></button></li>";
+ show(h+"</ul>");document.querySelectorAll("#list button").forEach(b=>b.onclick=()=>{$("dlg").close();load(+b.dataset.n)})}
+const wave=$("wave");for(let i=0;i<18;i++){const e=document.createElement("i");e.style.animationDelay=(i*.07)+"s";wave.appendChild(e)}
+$("play").onclick=()=>{const c=$("clip"),end=()=>c.classList.remove("playing");c.classList.add("playing");
+ if(aud&&songDur){const st=Math.max(0,Math.min(songDur-2,songDur*(.2+.5*rng(num*13)())));aud.currentTime=st;aud.play().catch(end);setTimeout(()=>{aud.pause();end()},1500)}else playClip(num,end)};
+let coverLo="",coverHi="",aud=null,songDur=0,songURL="",pt=0;
+// Every tile owns a 1.5s slice of one section of the song; tile k = k-th slice, so the solved grid plays in song order.
+function playTile(id){const c=$("clip"),stop=()=>c.classList.remove("playing");clearTimeout(pt);c.classList.add("playing");
+ if(aud&&songDur){aud.pause();const step=Math.min(1.5,(songDur-1.5)/15),span=15*step+1.5,s0=Math.max(0,rng(num*13)()*(songDur-span)),st=Math.min(songDur-1.5,s0+id*step);aud.currentTime=st;aud.play().catch(stop);pt=setTimeout(()=>{aud.pause();stop()},1500)}
+ else playClip(num*100+id,stop)}
+$("song").onchange=e=>{const f=e.target.files[0];if(!f)return;if(songURL)URL.revokeObjectURL(songURL);songURL=URL.createObjectURL(f);aud=new Audio(songURL);aud.preload="auto";aud.onloadedmetadata=()=>{songDur=aud.duration};$("songName").textContent="\u2713";$("msg").textContent="Song loaded. Tap any tile to hear its clip."};
+let nowId=-1,tok=0,chain=false;
+const allPlaced=()=>slots.every(x=>x!==null);
+function markNow(){document.querySelectorAll(".tile").forEach(t=>t.classList.toggle("now",+t.dataset.id===nowId&&!t.classList.contains("drag")))}
+function killSound(){clearTimeout(pt);if(aud)aud.pause();if(mg){try{mg.disconnect()}catch(e){}mg=null}}
+function stopAll(){tok++;killSound();chain=false;nowId=-1;$("clip").classList.remove("playing");markNow()}
+// Plays one tile's slice, then calls onEnd (only if nothing else started or stopped playback meanwhile).
+function slice(id,onEnd){const my=++tok;killSound();nowId=id;markNow();$("clip").classList.add("playing");const fin=()=>{if(my===tok)onEnd()};
+ if(aud&&songDur){const step=Math.min(1.5,(songDur-1.5)/15),span=15*step+1.5,s0=Math.max(0,rng(num*13)()*(songDur-span)),st=Math.min(songDur-1.5,s0+id*step);aud.currentTime=st;aud.play().catch(()=>{if(my===tok)stopAll()});pt=setTimeout(fin,1500)}
+ else{playClip(num*100+id,()=>{});pt=setTimeout(fin,1600)}}
+// With every tile in the grid, playback runs on through the grid in order and loops until the playing tile is tapped.
+function runChain(p){chain=true;slice(slots[p],()=>{const q=p+1;if(q<16&&slots[q]!==null)runChain(q);else stopAll()})}
+function tapTile(id){if(nowId===id){stopAll();return}
+ if(slots.includes(id))runChain(slots.indexOf(id));else{chain=false;slice(id,stopAll)}}
+// ===== Gapless playback: the song is decoded once and every tile is scheduled on the audio clock =====
+// (these definitions replace the earlier tapTile/stopAll/killSound/markNow)
+const LEN=1.5;let buf=null,srcs=[],tm=[],sess=0;
+function ctx(){ac=ac||new (window.AudioContext||window.webkitAudioContext)();if(ac.state==="suspended")ac.resume();return ac}
+function offOf(id){const d=buf.duration,step=Math.min(LEN,(d-LEN)/15),span=15*step+LEN,s0=Math.max(0,rng(num*13)()*(d-span));return Math.min(d-LEN,s0+id*step)}
+let elAud=null; // backup: if the browser won't let the page read the preview, play it through a normal audio element
+function voice(id,when,out){const a=ctx();
+ if(elAud){const d=elAud.duration,st=Math.min(LEN,(d-LEN)/15),sp=15*st+LEN,s0=Math.max(0,rng(num*13)()*(d-sp)),off=Math.min(d-LEN,s0+id*st),w=Math.max(0,(when-a.currentTime)*1000);tm.push(setTimeout(()=>{elAud.currentTime=off;elAud.play().catch(()=>{})},w));tm.push(setTimeout(()=>elAud.pause(),w+LEN*1000-30));return}
+ if(buf){const s=a.createBufferSource(),g=a.createGain();s.buffer=buf;g.gain.setValueAtTime(0,when);g.gain.linearRampToValueAtTime(1,when+.003);g.gain.setValueAtTime(1,when+LEN-.003);g.gain.linearRampToValueAtTime(0,when+LEN);s.connect(g).connect(out);s.start(when,offOf(id),LEN);srcs.push(s)}
+ else{const r=rng((num*100+id)*31),sc=[0,2,3,5,7,8,10],base=196*(r()>.5?1:1.41);for(let i=0;i<6;i++){const o=a.createOscillator(),g=a.createGain(),t=when+i*.25;o.type="triangle";o.frequency.value=base*Math.pow(2,(sc[Math.floor(r()*7)]+(r()>.7?12:0))/12);g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.25,t+.02);g.gain.exponentialRampToValueAtTime(.001,t+.24);o.connect(g).connect(out);o.start(t);o.stop(t+.25);srcs.push(o)}}}
+function killSound(){if(elAud)elAud.pause();tm.forEach(clearTimeout);tm=[];srcs.forEach(s=>{try{s.stop()}catch(e){}});srcs=[];if(mg){try{mg.disconnect()}catch(e){}mg=null}}
+function markNow(){document.querySelectorAll(".tile").forEach(t=>t.classList.toggle("now",+t.dataset.id===nowId&&!solved&&!t.classList.contains("drag")))}
+function stopAll(){sess++;killSound();mvPause();nowId=-1;$("clip").classList.remove("playing");markNow()}
+// Plays the tile in slot p, then keeps going slot by slot while the next slot has a tile. single=true plays just tile id.
+function begin(p,single,id){
+ const my=++sess;killSound();const a=ctx();mg=a.createGain();mg.connect(a.destination);
+ let at=a.currentTime+.03,pos=p;
+ const ms=t=>Math.max(0,(t-a.currentTime)*1000);
+ const step=()=>{const tid=single?id:slots[pos],endT=at+LEN;voice(tid,at,mg);
+  tm.push(setTimeout(()=>{if(my!==sess)return;nowId=tid;markNow();$("clip").classList.add("playing");syncVideo(tid)},ms(at)));
+  tm.push(setTimeout(()=>{if(my!==sess)return;const q=pos+1;
+   if(!single&&q<16&&slots[q]!==null){pos=q;at=endT;step()}
+   else tm.push(setTimeout(()=>{if(my===sess)stopAll()},ms(endT)))},ms(endT-.25)))};
+ step()}
+function tapTile(id){if(nowId===id){stopAll();return}
+ if(slots.includes(id))begin(slots.indexOf(id),false);else begin(0,true,id)}
+$("play").onclick=()=>{if($("clip").classList.contains("playing"))stopAll();else begin(0,false)};
+// ===== Online song: Apple's public iTunes Search API gives a 30s preview and the cover art, no upload needed =====
+const esc=s=>String(s).replace(/[&<>"']/g,c=>"&#"+c.charCodeAt(0)+";");
+// ===== 15 mystery Filipino tracks. Titles stay hidden until solved; hints are original descriptions, not lyrics. =====
+let hiImg="";
+const SONGS=[
+{a:"Eraserheads",t:"Ang Huling El Bimbo",era:"OPM classic · 1990s",h:"A school-dance memory that grew into Pinoy rock’s most beloved heartbreak story."},
+{a:"Parokya ni Edgar",t:"Harana",era:"OPM · 1990s",h:"A cheerful promise to sing at someone’s window until they finally notice."},
+{a:"Moonstar88",t:"Torete",era:"OPM · 2000s",h:"So smitten that sleep, appetite and common sense all go missing."},
+{a:"Up Dharma Down",t:"Tadhana",era:"Indie OPM · 2010s",h:"Asking fate, softly and sadly, whether this love was ever meant to be."},
+{a:"Yeng Constantino",t:"Hawak Kamay",era:"Pop ballad · 2000s",h:"A hand held through the years; a staple at weddings."},
+{a:"Callalily",t:"Magbalik",era:"Rock · 2000s",h:"A band begs someone to come back and make things whole again."},
+{a:"December Avenue",t:"Sa Ngalan ng Pag-ibig",era:"Band ballad · 2010s",h:"A plea for love to make sense, from a Manila band known for slow-burning heartbreak."},
+{a:"Ben&Ben",t:"Kathang Isip",era:"Folk-pop · 2010s",h:"A tender wish that this love could stay real and not just imagined."},
+{a:"IV Of Spades",t:"Mundo",era:"Funk-pop · 2010s",h:"A dreamy, groovy song about one person being everything."},
+{a:"Moira Dela Torre",t:"Tagpuan",era:"Ballad · 2010s",h:"About finding the place where two people finally meet."},
+{a:"SunKissed Lola",t:"Pasilyo",era:"Pop-soul · 2020s",h:"A quiet corridor and a chance encounter that makes hearts pause."},
+{a:"Zack Tabudlo",t:"Binibini",era:"Pop · 2020s",h:"A young man’s soft serenade to a lady he admires."},
+{a:"Lola Amour",t:"Raining in Manila",era:"Retro pop-rock · 2020s",h:"City rain, traffic and a slow, retro-flavoured romance."},
+{a:"Adie & Janine Berdin",t:"Mahika",era:"Pop duet · 2020s",h:"Two voices fall under a charm, like a spell neither wants broken."},
+{a:"BINI",t:"Pantropiko",era:"P-pop · 2020s",h:"Beach-escape heat and a summery crush from a chart-topping girl group."}];
+const songCache={};
+const KW=["sayawan · eskwela · alaala","bintana · gitara · gabi","tulala · puyat · kilig","kapalaran · tanong · lungkot","kasal · panata · habambuhay","balik · luha · pangako","tula · dasal · sugat","guni-guni · panaginip · sana","buwan · sayaw · ikaw","sulok · hintay · salubong","daan · sulyap · kaba","dalaga · ganda · hiya","bagyo · jeep · gabi","engkanto · gayuma · hulog","dagat · init · tag-araw"];
+const coverCache={},artCache={};
+const mvEl=$("mv");let mvOK=false,vt=0;const vCache={};
+function vOff(id){const d=mvEl.duration||30,st=Math.min(LEN,(d-LEN)/15),sp=15*st+LEN,s0=Math.max(0,rng(num*13)()*(d-sp));return Math.min(d-LEN,s0+id*st)}
+function syncVideo(id){if(solved)return;$("mvbox").classList.add("live");clearTimeout(vt);
+ if(mvOK){try{mvEl.currentTime=vOff(id);mvEl.play().catch(()=>{})}catch(e){}vt=setTimeout(()=>mvEl.pause(),LEN*1000-40)}
+ else{const r=rng(id*131+num);$("mvf").style.backgroundPosition=(r()*100).toFixed(0)+"% "+(r()*100).toFixed(0)+"%"}}
+function mvPause(){if(solved)return;clearTimeout(vt);$("mvbox").classList.remove("live");try{mvEl.pause()}catch(e){}}
+// Looks for an official short music-video preview (Apple) for the song; if none exists the panel animates the blurred cover instead.
+async function videoFor(n){const s=SONGS[n-1];mvOK=false;mvEl.loop=false;mvEl.pause();mvEl.removeAttribute("src");mvEl.load();$("mvbox").classList.remove("hasv");
+ if(!vCache[n])vCache[n]=(async()=>{try{const j=await itunes("https://itunes.apple.com/search?entity=musicVideo&limit=10&country=PH&term="+encodeURIComponent(s.a+" "+s.t));
+  const rs=(j.results||[]).filter(x=>x.previewUrl),k=s.a.toLowerCase().split(/[ &]/)[0],t=s.t.toLowerCase().slice(0,6);
+  const h=rs.find(x=>x.artistName.toLowerCase().includes(k)&&x.trackName.toLowerCase().includes(t))||rs.find(x=>x.artistName.toLowerCase().includes(k));
+  return h?h.previewUrl:null}catch(e){return null}})();
+ const u=await vCache[n];if(n!==num||!u)return;
+ mvEl.src=u;await new Promise(r=>{mvEl.onloadedmetadata=r;mvEl.onerror=r;setTimeout(r,8000)});
+ if(n!==num)return;if(mvEl.duration>0){mvOK=true;$("mvbox").classList.add("hasv");
+  await new Promise(r=>{mvEl.onseeked=r;mvEl.currentTime=vOff(7);setTimeout(r,2500)});if(n===num&&!solved)render()}}
+// Every tile shows its own cell of the current video frame, so the whole grid plays as one picture.
+function drawV(){if(mvOK&&mvEl.readyState>=2&&mvEl.videoWidth){const vw=mvEl.videoWidth,vh=mvEl.videoHeight,sw=Math.min(vw,vh),sx=(vw-sw)/2,sy=(vh-sw)/2,c=sw/4;
+  document.querySelectorAll("canvas.vc").forEach(cv=>{const id=+cv.dataset.id;try{cv.getContext("2d").drawImage(mvEl,sx+(id%4)*c,sy+Math.floor(id/4)*c,c,c,0,0,cv.width,cv.height)}catch(e){}})}
+ requestAnimationFrame(drawV)}
+drawV();
+async function coverFor(n){const s=SONGS[n-1];
+ {const b=document.querySelector(".disc[data-n='"+n+"'] .cv");if(b){artCache[n]=artCache[n]||toURL(art(n,160));b.firstChild.style.backgroundImage="url("+artCache[n]+")";b.classList.add("on")}}
+ if(!coverCache[n])coverCache[n]=(async()=>{try{const j=await itunes("https://itunes.apple.com/search?media=music&entity=song&limit=5&country=PH&term="+encodeURIComponent(s.a+" "+s.t));
+  const rs=(j.results||[]).filter(x=>x.artworkUrl100),k=s.a.toLowerCase(),h=rs.find(x=>x.artistName.toLowerCase().includes(k))||rs[0];
+  return h?h.artworkUrl100.replace("100x100bb","200x200bb"):null}catch(e){return null}})();
+ const u=await coverCache[n];if(!u)return;
+ const b=document.querySelector(".disc[data-n='"+n+"'] .cv");if(!b)return;
+ b.firstChild.style.backgroundImage="url("+u+")";b.classList.add("on")}
+// Finds each track’s 30s preview and cover through Apple’s public search, behind the scenes (works on a self-hosted copy).
+async function songFor(n){
+ const s=SONGS[n-1];if(!s)return;$("msg").textContent="Tuning in…";
+ if(!songCache[n])songCache[n]=(async()=>{try{
+  const j=await itunes("https://itunes.apple.com/search?media=music&entity=song&limit=10&country=PH&term="+encodeURIComponent(s.a+" "+s.t));
+  const rs=(j.results||[]).filter(x=>x.previewUrl),key=s.a.toLowerCase();
+  const hit=rs.find(x=>x.artistName.toLowerCase().includes(key))||rs[0];if(!hit)return null;
+  const a=hit.artworkUrl100||"";let b=null,el=null;
+  try{b=await ctx().decodeAudioData(await (await fetch(hit.previewUrl)).arrayBuffer())}catch(e){el=new Audio(hit.previewUrl);await new Promise(r=>{el.onloadedmetadata=r;el.onerror=r;el.load()});if(!el.duration||isNaN(el.duration))el=null}
+  if(!b&&!el)return null;
+  return {buf:b,el,lo:a.replace("100x100bb","600x600bb"),hi:a.replace("100x100bb","1200x1200bb")}
+ }catch(e){return null}})();
+ const d=await songCache[n];
+ if(n!==num)return;
+ if(!d){$("msg").textContent="Couldn’t reach the music service, so you’ll hear placeholder tones. Open a self-hosted copy of the page to play the real songs.";return}
+ buf=d.buf;elAud=d.el;if(d.lo&&!solved){img=d.lo;hiImg=d.hi;render()}
+ $("msg").textContent="Ready. Tap a tile to hear its clip. Drag it into the grid to place it."}
+function archive(){
+ const s=stats(),order=SONGS.map((_,i)=>i+1);
+ for(let i=order.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[order[i],order[j]]=[order[j],order[i]]}
+ let h="<h2 style='margin:0'>Pick a disc</h2><p style='margin:4px 0 0;color:var(--mute)'>15 mystery tracks, from OPM classics to today’s charts.</p>"+statHtml()+"<div id='discs'>";
+ order.forEach(n=>{const t=s.p[n];h+="<button class='disc"+(t!=null?" done":"")+"' data-n='"+n+"' aria-label='Mystery disc'><span class='cd'><span class='cv'><i></i></span><span class='hp'>&#127911;</span></span><b>"+(t!=null?"✓ "+fmt(t):"Mystery")+"</b><small class='kw'>"+KW[n-1]+"</small></button>"});
+ show(h+"</div>");order.forEach(coverFor);document.querySelectorAll(".disc").forEach(b=>b.onclick=()=>{$("dlg").close();load(+b.dataset.n)})}
+// Search works on any host: normal request first, then the script-tag (JSONP) route if the browser refuses.
+function jsonp(url){return new Promise((res,rej)=>{const cb="cb"+Date.now(),s=document.createElement("script");window[cb]=d=>{delete window[cb];s.remove();res(d)};s.onerror=()=>{delete window[cb];s.remove();rej(new Error("blocked"))};s.src=url+"&callback="+cb;document.head.appendChild(s)})}
+async function itunes(url){try{const r=await fetch(url);return await r.json()}catch(e){return await jsonp(url)}}
+async function findSong(){const term=$("q").value.trim();if(!term)return;$("msg").textContent="Searching…";
+ try{const j=await itunes("https://itunes.apple.com/search?media=music&entity=song&limit=8&term="+encodeURIComponent(term));
+  const rs=(j.results||[]).filter(x=>x.previewUrl);
+  if(!rs.length){$("msg").textContent="No songs with a preview found. Try another search.";return}
+  show("<h2 style='margin:0 0 8px'>Pick a song</h2><ul id='list'>"+rs.map((x,i)=>"<li><button data-i='"+i+"'><span>"+esc(x.trackName)+" · "+esc(x.artistName)+"</span></button></li>").join("")+"</ul>");
+  document.querySelectorAll("#list button").forEach(b=>b.onclick=()=>{$("dlg").close();pickSong(rs[+b.dataset.i])});$("msg").textContent=""
+ }catch(e){$("msg").textContent="Couldn’t reach Apple’s music search from here. The hosted preview blocks outside connections, so open the downloaded file or host it yourself."}}
+async function pickSong(x){$("msg").textContent="Loading “"+x.trackName+"”…";buf=null;elAud=null;stopAll();
+ const a=x.artworkUrl100||"";coverLo=a.replace("100x100bb","600x600bb");coverHi=a.replace("100x100bb","1200x1200bb");
+ try{const b=await (await fetch(x.previewUrl)).arrayBuffer();buf=await ctx().decodeAudioData(b)}catch(e){elAud=new Audio(x.previewUrl);await new Promise(r=>{elAud.onloadedmetadata=r;elAud.onerror=r;elAud.load()});if(!elAud.duration||isNaN(elAud.duration)){elAud=null;$("msg").textContent="Couldn’t load that song preview.";return}}
+ load(num);$("msg").textContent="Ready: "+x.trackName+" by "+x.artistName+". Tap a tile to hear its clip."}
+$("go").onclick=findSong;$("q").onkeydown=e=>{if(e.key==="Enter")findSong()};
+// Images are turned into blob URLs once, so tiles never re-parse a huge data URI on every redraw.
+const urlCache=new Map();
+function toURL(d){if(!d||!d.startsWith("data:"))return d;if(urlCache.has(d))return urlCache.get(d);const b=atob(d.split(",")[1]),u=new Uint8Array(b.length);for(let i=0;i<b.length;i++)u[i]=b.charCodeAt(i);const url=URL.createObjectURL(new Blob([u],{type:"image/jpeg"}));urlCache.set(d,url);return url}
+{const root=document.documentElement,isDark=()=>root.dataset.theme?root.dataset.theme==="dark":matchMedia("(prefers-color-scheme: dark)").matches;
+ const apply=t=>{root.dataset.theme=t;$("theme").textContent=t==="dark"?"Light":"Dark";try{localStorage.setItem("tilefall-theme",t)}catch(e){}};
+ let saved=null;try{saved=localStorage.getItem("tilefall-theme")}catch(e){}
+ apply(saved||(isDark()?"dark":"light"));$("theme").onclick=()=>apply(isDark()?"light":"dark")}
+
+{const oldSong=$("song").onchange;$("song").onchange=e=>{oldSong(e);const f=e.target.files[0];if(!f)return;buf=null;elAud=null;f.arrayBuffer().then(b=>ctx().decodeAudioData(b)).then(d=>{buf=d;$("msg").textContent="Song ready. Tap any tile to hear its clip."}).catch(()=>{$("msg").textContent="Couldn’t read that audio file. Try an mp3, m4a or wav."})}}
+$("cover").onchange=e=>{const f=e.target.files[0];if(!f)return;const u=URL.createObjectURL(f),im=new Image();im.onload=()=>{const sq=z=>{const c=document.createElement("canvas");c.width=c.height=z;const s=Math.min(im.width,im.height);c.getContext("2d").drawImage(im,(im.width-s)/2,(im.height-s)/2,s,s,0,0,z,z);return c.toDataURL("image/jpeg",.92)};coverLo=sq(512);coverHi=sq(1024);URL.revokeObjectURL(u);load(num)};im.src=u};
+$("check").onclick=check;$("again").onclick=()=>load(num);
+$("results").onclick=()=>show("<h2 style='margin:0'>"+(solved?"Solved in "+fmt(secs):"Not solved yet")+"</h2>"+statHtml());
+$("archBtn").onclick=archive;$("dayBtn").onclick=archive;$("close").onclick=()=>$("dlg").close();
+load(num);
+</script>
+</body>
+</html>
