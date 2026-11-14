@@ -735,7 +735,7 @@ async function shareAlbum(al){const sh=al.items.filter(z=>/^https:/.test(z.p));i
 function checkShare(){const m=location.hash.match(/^#c=([\w-]+)$/);if(!m)return;
  try{const o=b64d(m[1]),ok=u=>/^https:\/\//.test(u),items=(o.i||[]).slice(0,50).map(z=>({t:String(z[0]).slice(0,120),a:String(z[1]).slice(0,120),p:String(z[2]),c:ok(String(z[3]))?String(z[3]):"",s:+z[4],e:+z[5]})).filter(z=>ok(z.p)&&z.e-z.s>=7.9&&z.e-z.s<=24.1&&z.s>=0),name=String(o.n||"Shared challenge").slice(0,40);
   if(!items.length)return;
-  show("<div style='text-align:center'><div style='font-size:2.4rem'>🎁</div><h2 style='margin:6px 0'>"+esc(name)+"</h2><p style='margin:0;color:var(--mute);font-weight:600'>A friend shared "+items.length+" puzzle"+(items.length==1?"":"s")+" with you.</p><div class='row' style='margin-top:16px'><button id='shNo'>Not now</button><button id='shGo' class='main'>Save &amp; play</button></div></div>");
+  show("<div style='text-align:center'><div style='font-size:2.4rem'></div><h2 style='margin:6px 0'>"+esc(name)+"</h2><p style='margin:0;color:var(--mute);font-weight:600'>A friend shared "+items.length+" puzzle"+(items.length==1?"":"s")+" with you.</p><div class='row' style='margin-top:16px'><button id='shNo'>Not now</button><button id='shGo' class='main'>Save &amp; play</button></div></div>");
   const clear=()=>{try{history.replaceState(null,"",location.pathname+location.search)}catch(e){}};
   $("shNo").onclick=()=>{$("dlg").close();clear()};
   $("shGo").onclick=()=>{const db=cdb();let al=db.albums.find(a=>a.name.toLowerCase()===name.toLowerCase());if(!al){al={id:"a"+Date.now().toString(36),name,items:[]};db.albums.push(al)}
