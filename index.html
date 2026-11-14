@@ -614,6 +614,22 @@ body.refr:not(.nolg) #gate .gbtn:not(.gw),body.refr:not(.nolg) #gate .gslides,#g
 #gate .gseg i::after{border-radius:6px;background:linear-gradient(180deg,#fff,rgba(255,255,255,.72));box-shadow:0 0 10px rgba(255,255,255,.55)}
 #gate .gs p{max-width:40ch}
 #gate .gslides{padding:18px 20px 16px}
+
+/* 4 slides: orb positions for slide 4 */
+#gate[data-s="3"] .o1{transform:translate(-30%,130%) scale(1.1,.9)}#gate[data-s="3"] .o2{transform:translate(-10%,34%) scale(1.02)}#gate[data-s="3"] .o3{transform:translate(0,-10%) scale(1.05)}
+/* slower record */
+#gate .gdisc i{animation-duration:26s}
+/* slider lines: plain glass, current one turns bright white (no fill animation) */
+#gate .gseg i{height:7px;border-radius:7px;
+ background:linear-gradient(180deg,rgba(255,255,255,.34),rgba(255,255,255,.07) 60%,rgba(255,255,255,.16));
+ border:1px solid rgba(255,255,255,.5);
+ -webkit-backdrop-filter:blur(4px) saturate(1.4);backdrop-filter:blur(4px) saturate(1.4);
+ box-shadow:inset 1.5px 1.5px 1px rgba(255,255,255,.8),inset -1px -1px 1px rgba(255,255,255,.3),0 2px 6px rgba(0,0,0,.25);transition:background .25s,box-shadow .25s}
+#gate .gseg i::after{display:none!important;animation:none!important}
+#gate .gseg i.cur{background:linear-gradient(180deg,#fff,rgba(255,255,255,.88));border-color:#fff;
+ box-shadow:inset 0 1px 1px #fff,0 0 12px rgba(255,255,255,.7),0 2px 6px rgba(0,0,0,.2)}
+/* the card: clear liquid glass with lens refraction (Chrome/Android) */
+body.refr:not(.nolg) #gate .gslides{-webkit-backdrop-filter:blur(2px) url(#lgf) saturate(1.2) brightness(1.04)!important;backdrop-filter:blur(2px) url(#lgf) saturate(1.2) brightness(1.04)!important}
 </style>
 </head>
 <body class="gated">
@@ -653,10 +669,11 @@ body.refr:not(.nolg) #gate .gbtn:not(.gw),body.refr:not(.nolg) #gate .gslides,#g
 <div class="gtop"><div class="gbrand"><svg width="26" height="26" viewBox="0 0 26 26" aria-hidden="true"><rect x="1" y="1" width="11" height="11" rx="3.2" fill="#fff"/><rect x="14" y="1" width="11" height="11" rx="3.2" fill="#fff" fill-opacity=".5"/><rect x="1" y="14" width="11" height="11" rx="3.2" fill="#fff" fill-opacity=".5"/><rect x="14" y="14" width="11" height="11" rx="3.2" style="fill:hsl(calc(var(--hue) + 14) 100% 60%)"/></svg><span>PuzzsiC</span></div></div>
 <div class="gmain">
   <div class="gslides" id="gSl">
-  <div class="gs on"><small>How PuzzsiC works</small><h2>Hear it.<br>Piece it together.</h2><p>Every tile is a 1.5-second slice of a song. Tap a tile to hear it, drag it into the grid, and the cover comes into focus as the pieces land in order.</p></div>
+  <div class="gs on"><small>Music puzzle</small><h2>Hear it.<br>Piece it together.</h2><p>Every tile is a 1.5-second slice of a song. Drop them in order and the cover comes into focus.</p></div>
+  <div class="gs"><small>How PuzzsiC works</small><h2>Tap. Drag.<br>Solve it.</h2><p>Tap a tile to hear it, drag it into the grid, and the cover comes into focus as the pieces land in order.</p></div>
   <div class="gs"><small>Mystery discs</small><h2>Guess it before the last tile lands.</h2><p>Start with OPM favorites or shuffle music from every era. Titles stay hidden until you solve it.</p></div>
   <div class="gs"><small>Make your own</small><h2>Challenge your friends.</h2><p>Pick any song, trim the clip and send a link.</p></div>
-  <div class="gseg" id="gSeg" role="tablist" aria-label="Slides"><i role="tab" aria-label="How it works"></i><i role="tab" aria-label="Mystery discs"></i><i role="tab" aria-label="Make your own"></i></div>
+  <div class="gseg" id="gSeg" role="tablist" aria-label="Slides"><i role="tab" aria-label="Music puzzle"></i><i role="tab" aria-label="How it works"></i><i role="tab" aria-label="Mystery discs"></i><i role="tab" aria-label="Make your own"></i></div>
  </div>
  <p id="gMsg" class="gmsg">Loading…</p>
  <div id="gAct" hidden>
@@ -1274,10 +1291,10 @@ document.querySelector("header>span").insertAdjacentHTML("beforeend"," <button i
 const setOut=t=>{g("outBtn").lastChild.textContent=" "+t};
 // ----- intro slides -----
 let gi=0,gt=0;const segs=[...document.querySelectorAll("#gSeg i")],sls=[...document.querySelectorAll("#gSl .gs")];
-function gshow(n){gi=Math.max(0,Math.min(2,n));clearTimeout(gt);g("gate").dataset.s=gi;
- segs.forEach((s,i)=>{s.classList.remove("cur","done","last");void s.offsetWidth;if(i<gi)s.classList.add("done");else if(i===gi){s.classList.add("cur");if(gi===2)s.classList.add("last")}});
+function gshow(n){gi=Math.max(0,Math.min(3,n));clearTimeout(gt);g("gate").dataset.s=gi;
+ segs.forEach((s,i)=>{s.classList.remove("cur","done","last");void s.offsetWidth;if(i<gi)s.classList.add("done");else if(i===gi){s.classList.add("cur");if(gi===3)s.classList.add("last")}});
  sls.forEach((s,i)=>s.classList.toggle("on",i===gi));
- if(gi<2)gt=setTimeout(()=>gshow(gi+1),7500)}
+ if(gi<3)gt=setTimeout(()=>gshow(gi+1),7500)}
 segs.forEach((s,i)=>s.onclick=()=>gshow(i));
 {let tx=0;const el=g("gSl");el.addEventListener("touchstart",e=>{tx=e.touches[0].clientX},{passive:true});el.addEventListener("touchend",e=>{const d=e.changedTouches[0].clientX-tx;if(Math.abs(d)>40)gshow(gi+(d<0?1:-1))})}
 const ent=()=>{try{return sessionStorage.getItem("puzzsic-entered")}catch(e){return null}},setEnt=v=>{try{v?sessionStorage.setItem("puzzsic-entered",v):sessionStorage.removeItem("puzzsic-entered")}catch(e){}};
