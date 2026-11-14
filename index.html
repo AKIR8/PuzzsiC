@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>PuzzsiC</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 26 26'%3E%3Crect width='26' height='26' rx='6' fill='%23260600'/%3E%3Crect x='4' y='4' width='8' height='8' rx='2.4' fill='%23fff'/%3E%3Crect x='14' y='4' width='8' height='8' rx='2.4' fill='%23fff' fill-opacity='.5'/%3E%3Crect x='4' y='14' width='8' height='8' rx='2.4' fill='%23fff' fill-opacity='.5'/%3E%3Crect x='14' y='14' width='8' height='8' rx='2.4' fill='%23ffb347'/%3E%3C/svg%3E">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root{--glass:.6;--bg:#f1f1f3;--panel:#fff;--ink:#1c1c1e;--mute:#6c6c72;--line:#d8d8dc;--ok:#12a37f;--sel:#e0561f;--btn:#1c1c1e;--btnink:#fff;
@@ -332,13 +333,51 @@ header{flex-wrap:wrap;gap:8px}header>span{display:flex;gap:6px;flex-wrap:wrap;ju
 body,#gate{font-family:"Manrope",-apple-system,BlinkMacSystemFont,system-ui,sans-serif;letter-spacing:-.05em}
 button,input,select,textarea,dialog{font-family:inherit;letter-spacing:inherit}
 #gate,#gate *{font-family:"Manrope",system-ui,sans-serif;letter-spacing:-.05em}
+
+/* ===== Warm "ember" look carried over from the landing page ===== */
+#brand{display:flex;align-items:center;gap:9px;padding:2px 6px 2px 0;border:0;border-radius:14px;background:none;box-shadow:none;-webkit-backdrop-filter:none;backdrop-filter:none;color:var(--ink);font-size:1.55rem;font-weight:800;letter-spacing:-.05em;line-height:1}
+body.flat #brand{background:none!important}
+#brand svg{flex:none;display:block}
+#brand .l1{fill:var(--ink)}#brand .l2{fill:var(--ink);fill-opacity:.45}#brand .l4{fill:#ff7a1a}
+#brand:active{transform:scale(.97)}
+:root[data-theme="dark"] body:not(.ingame){--bg:#150704;--panel:#2a120b;--line:#4d2a1f;--gl:rgba(120,50,30,.32);--glb:rgba(255,190,150,.2);--gls:rgba(255,200,160,.35);--mute:#c9a99c}
+:root[data-theme="light"] body:not(.ingame){--bg:#fff1e6;--line:#f0d3c0;--mute:#8a6a5c}
+body{transition:background-color .5s}
+body:not(.ingame) #amb i{opacity:1;background:radial-gradient(circle,color-mix(in srgb,var(--c) 58%,transparent),transparent 62%)}
+:root[data-theme="light"] body:not(.ingame) #amb i{background:radial-gradient(circle,color-mix(in srgb,var(--c) 42%,transparent),transparent 62%)}
+body:not(.ingame) #amb i:nth-child(1){--c:#ff4a10}
+body:not(.ingame) #amb i:nth-child(2){--c:#ffb347}
+body:not(.ingame) #amb i:nth-child(3){--c:#c4260a}
+.hello{--btn:#fff;--btnink:#161616;position:relative;isolation:isolate;overflow:hidden;display:flex;flex-direction:column;justify-content:flex-end;gap:18px;min-height:230px;padding:22px 20px 20px;border-radius:30px;color:#fff;background:#3a0a02;border:1px solid rgba(255,255,255,.22)}
+.hello::before{content:"";position:absolute;inset:-30%;z-index:-1;background:radial-gradient(ellipse 62% 42% at 50% 34%,#ff4a10,transparent 70%),radial-gradient(ellipse 58% 12% at 42% 76%,#ffe14d,transparent 72%),radial-gradient(ellipse 100% 55% at 50% 100%,#7d1400,transparent 75%);filter:blur(20px);animation:helloDrift 16s ease-in-out infinite alternate}
+@keyframes helloDrift{to{transform:translate3d(4%,-3%,0) scale(1.08)}}
+.hello small{display:block;color:rgba(255,255,255,.78);font-weight:500;font-size:.85rem;letter-spacing:-.03em}
+.hello h2{margin:6px 0 0;font-size:clamp(1.9rem,9vw,2.5rem);line-height:1;font-weight:600;letter-spacing:-.05em;max-width:12ch}
+.hello .hbtn{width:100%;height:52px;padding:0;font-weight:600;font-size:1rem;letter-spacing:-.03em;box-shadow:0 10px 26px rgba(0,0,0,.3)}
+.bar2{background:color-mix(in srgb,var(--ink) 12%,transparent)}
+.bar2 i{background:linear-gradient(90deg,#ff4a10,#ffb347)}
+#goMv,#goCv{border-color:rgba(255,255,255,.4);box-shadow:inset 0 1px 0 rgba(255,255,255,.5),0 10px 26px rgba(255,74,16,.28)}
+#goMv{background:linear-gradient(145deg,#ff4a10,#ff8a1f);color:#fff}
+#goMv small{color:rgba(255,255,255,.88)}
+#goCv{background:linear-gradient(145deg,#ffb347,#ffdf5a);color:#2a1200;box-shadow:inset 0 1px 0 rgba(255,255,255,.6),0 10px 26px rgba(255,179,71,.28)}
+#goCv small{color:rgba(42,18,0,.72)}
+body.flat #goMv{background:#f4540f!important}
+body.flat #goCv{background:#ffc04d!important}
+.tab.on{background:rgba(255,122,26,.24)}
+#home>*{order:5}
+#home>.hello{order:0}
+#home>.modes:has(#goMv){order:1}
+#home>.hello+.hero{order:2}
+#home>.stats{order:3}
+#home>.modes:has(#mkBtn){order:4}
+@media (prefers-reduced-motion:reduce){.hello::before{animation:none}}
 </style>
 </head>
 <body>
 <div id="amb" aria-hidden="true"><i></i><i></i><i></i></div>
 <div id="bgimg" aria-hidden="true"></div>
 <main>
- <header><h1>PuzzsiC</h1><span><button id="theme" aria-label="Toggle dark mode">Dark</button> <button id="fxBtn" aria-label="Appearance"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" style="vertical-align:-3px"><path d="M4 7h9M19 7h1M4 17h1M11 17h9"/><circle cx="16" cy="7" r="2.4"/><circle cx="8" cy="17" r="2.4"/></svg></button> <button id="homeBtn">Home</button> <button id="archBtn" hidden>Discs</button></span></header>
+ <header><h1><button id="brand" type="button" aria-label="PuzzsiC, go to home"><svg width="30" height="30" viewBox="0 0 26 26" aria-hidden="true"><rect class="l1" x="1" y="1" width="11" height="11" rx="3.2"/><rect class="l2" x="14" y="1" width="11" height="11" rx="3.2"/><rect class="l2" x="1" y="14" width="11" height="11" rx="3.2"/><rect class="l4" x="14" y="14" width="11" height="11" rx="3.2"/></svg><span>PuzzsiC</span></button></h1><span><button id="theme" aria-label="Toggle dark mode">Dark</button> <button id="fxBtn" aria-label="Appearance"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true" style="vertical-align:-3px"><path d="M4 7h9M19 7h1M4 17h1M11 17h9"/><circle cx="16" cy="7" r="2.4"/><circle cx="8" cy="17" r="2.4"/></svg></button> <button id="homeBtn">Home</button> <button id="archBtn" hidden>Discs</button></span></header>
  <section id="home"></section>
  <section id="plist" hidden></section>
  <section id="mk" hidden></section>
@@ -721,17 +760,23 @@ function showHome(){stopAll();try{mvEl.pause()}catch(e){}setAmb(0);view("home");
  const ent=[];Object.keys(sc.p).forEach(n=>ent.push({n:+n,mode:"cover",t:sc.p[n]}));Object.keys(sm.p).forEach(n=>ent.push({n:+n,mode:"mv",t:sm.p[n]}));ent.sort((a,b)=>a.n-b.n||(a.mode>b.mode?1:-1));
  const rows=ent.map(e=>"<li data-n='"+e.n+"' data-m='"+e.mode+"'><span class='cd sm'><span class='cv on'><i></i></span></span><div><b>"+esc(SONGS[e.n-1].t)+"<span class='bdg'>"+(e.mode==="mv"?"MV":"Cover")+"</span></b><small>"+esc(SONGS[e.n-1].a)+"</small></div><span class='tm'>"+fmt(e.t)+"</span></li>").join("");
  const pc=Math.round(sc.n/N*100),pm=mvReady?Math.min(100,Math.round(sm.n/mvReady*100)):0;
- $("home").innerHTML="<div class='hero'><h2>Your progress</h2><div class='prow'><span>Cover photo</span><span>"+sc.n+" / "+N+"</span></div><div class='bar2'><i style='width:"+pc+"%'></i></div><div class='prow'><span>Music video</span><span>"+sm.n+" / "+(mvReady||"–")+"</span></div><div class='bar2'><i style='width:"+pm+"%'></i></div></div>"
+ $("home").innerHTML=HOMEHERO()+"<div class='hero'><h2>Your progress</h2><div class='prow'><span>Cover photo</span><span>"+sc.n+" / "+N+"</span></div><div class='bar2'><i style='width:"+pc+"%'></i></div><div class='prow'><span>Music video</span><span>"+sm.n+" / "+(mvReady||"–")+"</span></div><div class='bar2'><i style='width:"+pm+"%'></i></div></div>"
  +"<div class='stats'><div><b>"+d+"</b><span>Puzzles solved</span></div><div><b>"+(d?fmt(avg):"–")+"</b><span>Avg time per puzzle</span></div><div><b>"+(d?fmt(best):"–")+"</b><span>Best time</span></div></div>"
  +custHome()+"<div class='modes'><button class='mode' id='goMv'><b>Music video</b><small>"+(mvReady?mvReady+" puzzles ready":"Looking for music videos…")+"</small></button><button class='mode' id='goCv'><b>Cover photo</b><small>"+N+" puzzles ready</small></button></div>"
  +(rows?"<div class='hero'><h2 style='font-size:1rem;margin:0'>Solved so far</h2><ul class='slist'>"+rows+"</ul></div>":"");
- $("goMv").onclick=()=>showList("mv");$("goCv").onclick=()=>showList("cover");bindCust();
+ $("goMv").onclick=()=>showList("mv");$("goCv").onclick=()=>showList("cover");bindCust();bindHero();
  onScan=updModes;scanMV();
  ent.forEach(e=>{const li=document.querySelector(".slist li[data-n='"+e.n+"'][data-m='"+e.mode+"']");if(!li)return;const i=li.querySelector(".cv i");
   li.onclick=()=>{MODE=e.mode;try{localStorage.setItem("tilefall-mode",MODE)}catch(x){}load(e.n)};
   artCache[e.n]=artCache[e.n]||toURL(art(e.n,160));i.style.backgroundImage="url("+artCache[e.n]+")";rowAmb(li,fbPal(e.n));
   getCover(e.n).then(u=>{if(!u||!li.isConnected)return;i.style.backgroundImage="url("+u+")";palette(e.n,u).then(c=>{if(c&&li.isConnected)rowAmb(li,c)})})})}
 $("homeBtn").onclick=showHome;
+
+// ===== Home hero + brand =====
+function HOMEHERO(){return "<div class='hello'><div><small>Mystery discs</small><h2>Guess it before the last tile lands.</h2></div><button class='main hbtn' id='heroPlay'>Play a random disc</button></div>"}
+function bindHero(){const b=$("heroPlay");if(!b)return;b.onclick=()=>{MODE="cover";try{localStorage.setItem("tilefall-mode","cover")}catch(e){}
+ const p=store().p||{},left=SONGS.map((_,i)=>i+1).filter(n=>p[n]==null),n=left.length?left[Math.floor(Math.random()*left.length)]:null;n?load(n):showList("cover")}}
+$("brand").onclick=()=>{if(!$("dlg").open)showHome();window.scrollTo(0,0)};
 
 // ===== Custom challenges: search a song, trim it, save it in a folder, share it =====
 let CUS=null,MK={};
