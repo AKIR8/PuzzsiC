@@ -469,12 +469,12 @@ html:has(body.gated){overflow:hidden;overscroll-behavior:none}
 body.gated{position:fixed;inset:0;width:100%;height:100dvh;overflow:hidden;overscroll-behavior:none}
 body.gated>main,body.gated>#amb,body.gated>#bgimg,body.gated>#dock{visibility:hidden}
 #gate{height:100dvh;overscroll-behavior:none}
-#gate .gmain{top:calc(env(safe-area-inset-top,0px) + 64px);bottom:0;justify-content:center;gap:10px;padding-bottom:calc(env(safe-area-inset-bottom,0px) + 16px)}
+#gate .gmain{top:calc(env(safe-area-inset-top,0px) + 64px);bottom:0;justify-content:flex-end;gap:10px;padding-bottom:calc(env(safe-area-inset-bottom,0px) + 16px)}
 #gate .gslides{min-height:168px;padding:18px 20px;border-radius:30px;margin-bottom:4px}
 #gate .gbtn{height:52px}#gate .gbtn.gt{height:52px}
 #gate .gmsg{min-height:0}
 /* clear liquid glass: almost no tint, thin blur, bright rim, refraction */
-#gate .gbrand,#gate .gbtn:not(.gw),#gate .gslides,#gate .gpanel,#gate .gin{
+#gate .gbtn:not(.gw),#gate .gslides,#gate .gpanel,#gate .gin{
  background:linear-gradient(135deg,rgba(255,255,255,.16),rgba(255,255,255,.02) 45%,rgba(255,255,255,.09))!important;
  -webkit-backdrop-filter:blur(6px) saturate(1.15) brightness(1.03)!important;backdrop-filter:blur(6px) saturate(1.15) brightness(1.03)!important;
  border:1px solid rgba(255,255,255,.5)!important;
@@ -492,8 +492,8 @@ body.refr:not(.nolg) #gate .gbtn:not(.gw),body.refr:not(.nolg) #gate .gslides{-w
 /* calmer centre glow + a real brand capsule */
 #gate .gorb.o1{filter:blur(64px) saturate(.8);opacity:.8}
 #gate .gorb.o2{filter:blur(70px) saturate(.72);opacity:.62}
-#gate .gbrand{align-self:flex-start;padding:8px 18px 8px 10px;border-radius:999px;gap:10px;font-size:1.4rem}
-#gate .gbrand svg{width:34px;height:34px}
+#gate .gbrand{font-size:1.5rem}
+#gate .gbrand svg{width:36px;height:36px}
 /* clear liquid glass across the app (switch-off still respected via Flat/Liquid Glass settings) */
 .hero,.stats>div,.mode,.clip,#time,.slist li,dialog,.gsearch,button:not(.tab):not(.disc):not(.tile):not(.sw):not(.main){
  -webkit-backdrop-filter:blur(5px) saturate(1.15) brightness(1.03);backdrop-filter:blur(5px) saturate(1.15) brightness(1.03);
@@ -505,6 +505,29 @@ body.refr:not(.nolg) .hero,body.refr:not(.nolg) .stats>div,body.refr:not(.nolg) 
 #home #discs.spot{display:flex;gap:6px;max-height:none;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;padding:26px calc(50% - 56px);scrollbar-width:none;-webkit-overflow-scrolling:touch}
 #home #discs.spot::-webkit-scrollbar{display:none}
 #home #discs.spot .disc{flex:0 0 112px;scroll-snap-align:center;will-change:transform,opacity}
+
+/* landing: motion-reactive frosted disc replaces the drifting blobs */
+#gate{--tx:0;--ty:0}
+#gate .gorb{animation:none!important}
+#gate .gorb.o1{translate:calc(var(--tx)*70px) calc(var(--ty)*70px)}
+#gate .gorb.o2{translate:calc(var(--tx)*44px) calc(var(--ty)*44px)}
+#gate .gorb.o3{translate:calc(var(--tx)*22px) calc(var(--ty)*22px)}
+#gate .gdisc{position:absolute;z-index:2;pointer-events:none;border-radius:50%;aspect-ratio:1;width:min(88vw,470px);left:calc(50% - min(44vw,235px));top:calc(env(safe-area-inset-top,0px) + 74px);
+ translate:calc(var(--tx)*-18px) calc(var(--ty)*-18px);
+ background:radial-gradient(circle at calc(30% + var(--tx)*16%) calc(24% + var(--ty)*16%),rgba(255,255,255,.42),rgba(255,255,255,.1) 36%,rgba(255,255,255,.03) 70%),linear-gradient(145deg,rgba(255,255,255,.16),rgba(255,255,255,.02));
+ -webkit-backdrop-filter:blur(28px) saturate(1.15)!important;backdrop-filter:blur(28px) saturate(1.15)!important;
+ border:1px solid rgba(255,255,255,.5);
+ box-shadow:inset 3px 3px 2px rgba(255,255,255,.6),inset -3px -3px 3px rgba(255,255,255,.22),inset 0 0 70px rgba(255,255,255,.1),0 30px 70px rgba(0,0,0,.3)}
+#gate .gdisc i{position:absolute;inset:16%;border-radius:50%;border:1px solid rgba(255,255,255,.22);box-shadow:inset 0 0 30px rgba(255,255,255,.08)}
+#gate .gdisc i::after{content:"";position:absolute;inset:38%;border-radius:50%;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.4);box-shadow:inset 1px 1px 1px rgba(255,255,255,.6)}
+/* "How PuzzsiC works" sits above the card */
+#gate #gHowBtn{order:-1;align-self:center;padding:8px 18px;border-radius:999px;text-decoration:none;font-size:.9rem;
+ background:linear-gradient(135deg,rgba(255,255,255,.16),rgba(255,255,255,.03))!important;border:1px solid rgba(255,255,255,.45)!important;
+ -webkit-backdrop-filter:blur(8px) saturate(1.15)!important;backdrop-filter:blur(8px) saturate(1.15)!important;
+ box-shadow:inset 1px 1px 1px rgba(255,255,255,.6),0 6px 18px rgba(0,0,0,.2)!important;color:#fff!important}
+#plist #discs.spot{display:flex;gap:6px;max-height:none;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;padding:34px calc(50% - 62px);scrollbar-width:none;position:relative}
+#plist #discs.spot::-webkit-scrollbar{display:none}
+#plist #discs.spot .disc{flex:0 0 124px;scroll-snap-align:center;will-change:transform,opacity}
 </style>
 </head>
 <body class="gated">
@@ -539,6 +562,7 @@ body.refr:not(.nolg) .hero,body.refr:not(.nolg) .stats>div,body.refr:not(.nolg) 
 <div id="gate" data-s="0">
 <div class="gstage" aria-hidden="true"><i class="gorb o3"></i><i class="gorb o2"></i><i class="gorb o1"></i></div>
 <div class="gshade"></div>
+<div class="gdisc" aria-hidden="true"><i></i></div>
 <div class="gtop"><div class="gbrand"><svg width="26" height="26" viewBox="0 0 26 26" aria-hidden="true"><rect x="1" y="1" width="11" height="11" rx="3.2" fill="#fff"/><rect x="14" y="1" width="11" height="11" rx="3.2" fill="#fff" fill-opacity=".5"/><rect x="1" y="14" width="11" height="11" rx="3.2" fill="#fff" fill-opacity=".5"/><rect x="14" y="14" width="11" height="11" rx="3.2" style="fill:hsl(calc(var(--hue) + 14) 100% 60%)"/></svg><span>PuzzsiC</span></div></div>
 <div class="gmain">
  <div class="gslides" id="gSl">
@@ -1220,16 +1244,27 @@ onAuthStateChanged(auth,async u=>{
  g("gCont").textContent="Continue as "+(u.displayName||u.email||"your account");g("gCont").hidden=false});
 </script>
 <script>
+/* spotlight carousel for disc lists (Pick a disc) */
 (function(){var red=matchMedia("(prefers-reduced-motion:reduce)").matches;
 function spot(el){if(el._u)return;el.classList.add("spot");
- var u=function(){var r=el.getBoundingClientRect(),c=r.left+r.width/2;el.querySelectorAll(".disc").forEach(function(d){var b=d.getBoundingClientRect(),w=b.width||112,dx=(b.left+b.width/2-c)/w,a=Math.min(Math.abs(dx),3),k=Math.max(-1,Math.min(1,dx));
-  d.style.transform=red?"":"perspective(700px) rotateY("+(-k*38).toFixed(1)+"deg) scale("+(1.18-Math.min(a,1.6)*.2).toFixed(3)+")";d.style.opacity=Math.max(.35,1-a*.28).toFixed(2);d.style.zIndex=10-Math.round(a)})};
+ var u=function(){var ds=el.querySelectorAll(".disc"),c=el.scrollLeft+el.clientWidth/2,xs=[],i,d,w,dx,a,k;
+  for(i=0;i<ds.length;i++){d=ds[i];w=d.offsetWidth||112;xs.push((d.offsetLeft+w/2-c)/w)}
+  for(i=0;i<ds.length;i++){d=ds[i];dx=xs[i];if(Math.abs(dx)>4){if(d._f)continue;d._f=1;d.style.transform="scale(.7)";d.style.opacity=".2";continue}d._f=0;a=Math.min(Math.abs(dx),3);k=Math.max(-1,Math.min(1,dx));
+   d.style.transform=red?"":"perspective(700px) rotateY("+(-k*38).toFixed(1)+"deg) scale("+(1.2-Math.min(a,1.6)*.2).toFixed(3)+")";d.style.opacity=Math.max(.35,1-a*.28).toFixed(2);d.style.zIndex=10-Math.round(a)}};
  el._u=u;el.addEventListener("scroll",function(){requestAnimationFrame(u)},{passive:true});
- el.addEventListener("click",function(e){var d=e.target.closest&&e.target.closest(".disc");if(!d)return;var r=el.getBoundingClientRect(),b=d.getBoundingClientRect();
-  if(Math.abs((b.left+b.width/2)-(r.left+r.width/2))>b.width*.35){e.stopImmediatePropagation();e.stopPropagation();d.scrollIntoView({behavior:"smooth",inline:"center",block:"nearest"})}},true);
+ el.addEventListener("click",function(e){var d=e.target.closest&&e.target.closest(".disc");if(!d)return;var c=el.scrollLeft+el.clientWidth/2;
+  if(Math.abs(d.offsetLeft+d.offsetWidth/2-c)>d.offsetWidth*.35){e.stopImmediatePropagation();e.stopPropagation();el.scrollTo({left:d.offsetLeft+d.offsetWidth/2-el.clientWidth/2,behavior:"smooth"})}},true);
  requestAnimationFrame(u)}
-function run(){document.querySelectorAll("#home #discs").forEach(function(e){spot(e);e._u&&e._u()})}
+var q=0;function run(){if(q)return;q=requestAnimationFrame(function(){q=0;document.querySelectorAll("#plist #discs,#home #discs").forEach(function(e){spot(e);e._u()})})}
 new MutationObserver(run).observe(document.body,{childList:true,subtree:true});run()})();
+/* landing page: frosted disc + background react to phone motion */
+(function(){var gt=document.getElementById("gate");if(!gt)return;var tx=0,ty=0,cx=0,cy=0,b0=null,live=false;
+function cl(v){return Math.max(-1,Math.min(1,v))}
+function o(e){if(e.gamma==null||e.beta==null)return;live=true;if(b0===null)b0=e.beta;tx=cl(e.gamma/28);ty=cl((e.beta-b0)/28)}
+addEventListener("deviceorientation",o,true);
+addEventListener("pointermove",function(e){if(live)return;tx=cl((e.clientX/innerWidth-.5)*2);ty=cl((e.clientY/innerHeight-.5)*2)},{passive:true});
+gt.addEventListener("pointerdown",function ask(){var D=window.DeviceOrientationEvent;if(D&&typeof D.requestPermission==="function"){D.requestPermission().then(function(r){if(r==="granted")addEventListener("deviceorientation",o,true)}).catch(function(){})}gt.removeEventListener("pointerdown",ask)},{passive:true});
+(function f(){requestAnimationFrame(f);if(gt.hidden)return;cx+=(tx-cx)*.08;cy+=(ty-cy)*.08;gt.style.setProperty("--tx",cx.toFixed(3));gt.style.setProperty("--ty",cy.toFixed(3))})()})();
 </script>
 </body>
 </html>
