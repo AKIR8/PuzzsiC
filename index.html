@@ -474,13 +474,13 @@ body.gated>main,body.gated>#amb,body.gated>#bgimg,body.gated>#dock{visibility:hi
 #gate .gbtn{height:52px}#gate .gbtn.gt{height:52px}
 #gate .gmsg{min-height:0}
 /* clear liquid glass: almost no tint, thin blur, bright rim, refraction */
-#gate .gbtn:not(.gw),#gate .gslides,#gate .gpanel,#gate .gin{
+#gate .gbrand,#gate .gbtn:not(.gw),#gate .gslides,#gate .gpanel,#gate .gin{
  background:linear-gradient(135deg,rgba(255,255,255,.16),rgba(255,255,255,.02) 45%,rgba(255,255,255,.09))!important;
- -webkit-backdrop-filter:blur(6px) saturate(1.9) brightness(1.1)!important;backdrop-filter:blur(6px) saturate(1.9) brightness(1.1)!important;
+ -webkit-backdrop-filter:blur(6px) saturate(1.15) brightness(1.03)!important;backdrop-filter:blur(6px) saturate(1.15) brightness(1.03)!important;
  border:1px solid rgba(255,255,255,.5)!important;
  box-shadow:inset 1.5px 1.5px 1px rgba(255,255,255,.8),inset -1px -1px 1px rgba(255,255,255,.35),inset 0 0 24px rgba(255,255,255,.08),0 12px 30px rgba(0,0,0,.25)!important;
  color:#fff!important;text-shadow:0 1px 6px rgba(0,0,0,.4)}
-body.refr:not(.nolg) #gate .gbtn:not(.gw),body.refr:not(.nolg) #gate .gslides{-webkit-backdrop-filter:blur(2px) url(#lgf) saturate(1.9) brightness(1.1)!important;backdrop-filter:blur(2px) url(#lgf) saturate(1.9) brightness(1.1)!important}
+body.refr:not(.nolg) #gate .gbtn:not(.gw),body.refr:not(.nolg) #gate .gslides{-webkit-backdrop-filter:blur(2px) url(#lgf) saturate(1.15) brightness(1.03)!important;backdrop-filter:blur(2px) url(#lgf) saturate(1.15) brightness(1.03)!important}
 #gate .gpanel{background:linear-gradient(135deg,rgba(255,255,255,.14),rgba(255,255,255,.03)),hsl(var(--hue) 80% 12%/.38)!important;border-radius:30px 30px 0 0!important}
 #gate .gin{border-radius:16px!important}
 #gate .glink{background:none!important;border:0!important;box-shadow:none!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important;color:rgba(255,255,255,.82)!important;text-shadow:none}
@@ -488,6 +488,23 @@ body.refr:not(.nolg) #gate .gbtn:not(.gw),body.refr:not(.nolg) #gate .gslides{-w
 #gate .gbtn.gw{color:#111!important}
 #gate .gbtn{transition:transform .15s}#gate .gbtn:active{transform:scale(.97)}
 #gate .gbtn:focus-visible{outline:3px solid var(--sel);outline-offset:2px}
+
+/* calmer centre glow + a real brand capsule */
+#gate .gorb.o1{filter:blur(64px) saturate(.8);opacity:.8}
+#gate .gorb.o2{filter:blur(70px) saturate(.72);opacity:.62}
+#gate .gbrand{align-self:flex-start;padding:8px 18px 8px 10px;border-radius:999px;gap:10px;font-size:1.4rem}
+#gate .gbrand svg{width:34px;height:34px}
+/* clear liquid glass across the app (switch-off still respected via Flat/Liquid Glass settings) */
+.hero,.stats>div,.mode,.clip,#time,.slist li,dialog,.gsearch,button:not(.tab):not(.disc):not(.tile):not(.sw):not(.main){
+ -webkit-backdrop-filter:blur(5px) saturate(1.15) brightness(1.03);backdrop-filter:blur(5px) saturate(1.15) brightness(1.03);
+ border-color:rgba(255,255,255,.45);
+ box-shadow:inset 1.5px 1.5px 1px rgba(255,255,255,.6),inset -1px -1px 1px rgba(255,255,255,.25),inset 0 0 20px rgba(255,255,255,.06),0 10px 26px rgba(0,0,0,.2)}
+body.refr:not(.nolg) .hero,body.refr:not(.nolg) .stats>div,body.refr:not(.nolg) .mode,body.refr:not(.nolg) dialog,body.refr:not(.nolg) .slist li{
+ -webkit-backdrop-filter:blur(2px) url(#lgf) saturate(1.15) brightness(1.03);backdrop-filter:blur(2px) url(#lgf) saturate(1.15) brightness(1.03)}
+/* spotlight carousel for the home discs */
+#home #discs.spot{display:flex;gap:6px;max-height:none;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x mandatory;padding:26px calc(50% - 56px);scrollbar-width:none;-webkit-overflow-scrolling:touch}
+#home #discs.spot::-webkit-scrollbar{display:none}
+#home #discs.spot .disc{flex:0 0 112px;scroll-snap-align:center;will-change:transform,opacity}
 </style>
 </head>
 <body class="gated">
@@ -500,7 +517,7 @@ body.refr:not(.nolg) #gate .gbtn:not(.gw),body.refr:not(.nolg) #gate .gslides{-w
  <section id="plist" hidden></section>
  <section id="mk" hidden></section>
  <div id="game" hidden>
- <div class="bar"><button id="backBtn" type="button" aria-label="Back to previous page">← Back</button><span id="dayTitle"></span><small id="mvst"></small><span id="time">0:00</span></div>
+ <div class="bar"><button id="backBtn" type="button" aria-label="Back to previous page">←</button><span id="dayTitle"></span><small id="mvst"></small><span id="time">0:00</span></div>
  <div class="rsrow"><button id="restore" aria-label="Return all placed tiles to the tray">Restore</button></div>
  <div id="grid" aria-label="Puzzle grid"></div>
  <div id="tray" aria-label="Loose tiles"></div>
@@ -956,7 +973,7 @@ async function idbPut(k,v){const d=await idb();return new Promise((res,rej)=>{co
 async function idbGet(k){const d=await idb();return new Promise((res,rej)=>{const q=d.transaction("f").objectStore("f").get(k);q.onsuccess=()=>res(q.result);q.onerror=()=>rej(q.error)})}
 const HINT="Start typing. Matching songs show up instantly.";
 function openSearch(alb,q){MK={alb:alb||null,q:q||""};stopAll();view("mk");setAmb(0);window.scrollTo(0,0);document.querySelectorAll(".tab").forEach(t=>t.classList.remove("on"));
- $("mk").innerHTML="<div class='lhead'><button id='mkBack'>← Back</button><h2>Make a challenge</h2></div>"
+ $("mk").innerHTML="<div class='lhead'><button id='mkBack' aria-label='Back'>←</button><h2>Make a challenge</h2></div>"
  +"<div class='gsearch lgx'><span aria-hidden='true'>"+SRCH+"</span><input id='mq' type='search' placeholder='Search a song or artist' aria-label='Search a song' autocomplete='off'></div>"
  +"<ul class='slist' id='mres'></ul>"
  +"<p id='mnote' class='hint' hidden>Only a 30-second preview of each song plays here. Apple’s public search shares just 30 seconds of every track to protect the artists’ rights, so the puzzle is built from that preview. To use a full-length song, upload your own file below.</p>"
@@ -1201,6 +1218,18 @@ onAuthStateChanged(auth,async u=>{
  if(ent()==="user"){pendU=null;await enterUser(u);return}
  pendU=u;uid=null;g("outBtn").hidden=true;showGate();gnote("");opts(true);
  g("gCont").textContent="Continue as "+(u.displayName||u.email||"your account");g("gCont").hidden=false});
+</script>
+<script>
+(function(){var red=matchMedia("(prefers-reduced-motion:reduce)").matches;
+function spot(el){if(el._u)return;el.classList.add("spot");
+ var u=function(){var r=el.getBoundingClientRect(),c=r.left+r.width/2;el.querySelectorAll(".disc").forEach(function(d){var b=d.getBoundingClientRect(),w=b.width||112,dx=(b.left+b.width/2-c)/w,a=Math.min(Math.abs(dx),3),k=Math.max(-1,Math.min(1,dx));
+  d.style.transform=red?"":"perspective(700px) rotateY("+(-k*38).toFixed(1)+"deg) scale("+(1.18-Math.min(a,1.6)*.2).toFixed(3)+")";d.style.opacity=Math.max(.35,1-a*.28).toFixed(2);d.style.zIndex=10-Math.round(a)})};
+ el._u=u;el.addEventListener("scroll",function(){requestAnimationFrame(u)},{passive:true});
+ el.addEventListener("click",function(e){var d=e.target.closest&&e.target.closest(".disc");if(!d)return;var r=el.getBoundingClientRect(),b=d.getBoundingClientRect();
+  if(Math.abs((b.left+b.width/2)-(r.left+r.width/2))>b.width*.35){e.stopImmediatePropagation();e.stopPropagation();d.scrollIntoView({behavior:"smooth",inline:"center",block:"nearest"})}},true);
+ requestAnimationFrame(u)}
+function run(){document.querySelectorAll("#home #discs").forEach(function(e){spot(e);e._u&&e._u()})}
+new MutationObserver(run).observe(document.body,{childList:true,subtree:true});run()})();
 </script>
 </body>
 </html>
