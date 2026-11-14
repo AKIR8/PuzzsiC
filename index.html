@@ -629,23 +629,19 @@ body.refr:not(.nolg) #gate .gbtn:not(.gw),body.refr:not(.nolg) #gate .gslides,#g
 /* the card: clear liquid glass with lens refraction (Chrome/Android) */
 body.refr:not(.nolg) #gate .gslides{-webkit-backdrop-filter:blur(2px) url(#lgf) saturate(1.2) brightness(1.04)!important;backdrop-filter:blur(2px) url(#lgf) saturate(1.2) brightness(1.04)!important}
 
-/* big centered disc carousel (Home + Pick a disc): ~5x the old size, capped to fit the screen */
-#home #discs.spot,#plist #discs.spot{--dsz:min(560px,86vw);
- padding:calc(var(--dsz)*.16) calc(50% - (var(--dsz) + 12px)/2);gap:0}
-#home #discs.spot .disc,#plist #discs.spot .disc{flex:0 0 calc(var(--dsz) + 12px);gap:calc(var(--dsz)*.05)}
-#home #discs.spot .cd,#plist #discs.spot .cd{width:var(--dsz);height:var(--dsz)}
-#home #discs.spot .cd::after,#plist #discs.spot .cd::after{width:calc(var(--dsz)*.2);height:calc(var(--dsz)*.2)}
-#home #discs.spot .hp,#plist #discs.spot .hp{width:calc(var(--dsz)*.16);height:calc(var(--dsz)*.16);font-size:calc(var(--dsz)*.08);bottom:calc(var(--dsz)*.03);right:calc(var(--dsz)*.03)}
-#home #discs.spot .disc b,#plist #discs.spot .disc b{font-size:1.15rem}
-#home #discs.spot .disc small,#plist #discs.spot .disc small{font-size:.9rem}
-
-/* Random music: discs flow down the screen in a zigzag wave */
-#mk #discs.wave{--wsz:min(190px,40vw);display:flex;flex-direction:column;align-items:center;gap:calc(var(--wsz)*.22);
- max-height:none;overflow:visible;padding:calc(var(--wsz)*.4) 0 calc(var(--wsz)*.6);position:relative}
-#mk #discs.wave .disc{flex:none;width:calc(var(--wsz) + 12px);will-change:transform,opacity;transition:none}
-#mk #discs.wave .cd{width:var(--wsz);height:var(--wsz)}
-#mk #discs.wave .cd::after{width:calc(var(--wsz)*.2);height:calc(var(--wsz)*.2)}
-#mk #discs.wave .hp{width:calc(var(--wsz)*.2);height:calc(var(--wsz)*.2);font-size:calc(var(--wsz)*.1)}
+/* centered disc carousel (Home, Cover photo, Music video, Random music) */
+#home #discs.spot,#plist #discs.spot,#mk #discs.spot{--dsz:min(300px,64vw);display:flex;max-height:none;overflow-x:auto;overflow-y:hidden;
+ scroll-snap-type:x mandatory;scrollbar-width:none;-webkit-overflow-scrolling:touch;position:relative;
+ padding:calc(var(--dsz)*.14) calc(50% - (var(--dsz) + 12px)/2);gap:0}
+#home #discs.spot::-webkit-scrollbar,#plist #discs.spot::-webkit-scrollbar,#mk #discs.spot::-webkit-scrollbar{display:none}
+#home #discs.spot .disc,#plist #discs.spot .disc,#mk #discs.spot .disc{flex:0 0 calc(var(--dsz) + 12px);scroll-snap-align:center;will-change:transform,opacity;gap:calc(var(--dsz)*.05)}
+#home #discs.spot .cd,#plist #discs.spot .cd,#mk #discs.spot .cd{width:var(--dsz);height:var(--dsz)}
+#home #discs.spot .cd::after,#plist #discs.spot .cd::after,#mk #discs.spot .cd::after{width:calc(var(--dsz)*.2);height:calc(var(--dsz)*.2)}
+#home #discs.spot .hp,#plist #discs.spot .hp,#mk #discs.spot .hp{width:calc(var(--dsz)*.16);height:calc(var(--dsz)*.16);font-size:calc(var(--dsz)*.08);bottom:calc(var(--dsz)*.03);right:calc(var(--dsz)*.03)}
+#home #discs.spot .disc b,#plist #discs.spot .disc b,#mk #discs.spot .disc b{font-size:1.1rem}
+#home #discs.spot .disc small,#plist #discs.spot .disc small,#mk #discs.spot .disc small{font-size:.85rem}
+/* no square panel behind the discs */
+#home .disc,#plist .disc,#mk .disc,#discs .disc{background:none!important;border:0!important;box-shadow:none!important;-webkit-backdrop-filter:none!important;backdrop-filter:none!important}
 </style>
 </head>
 <body class="gated">
@@ -1386,25 +1382,13 @@ function spot(el){if(el._u)return;el.classList.add("spot");
  var u=function(){var ds=el.querySelectorAll(".disc"),c=el.scrollLeft+el.clientWidth/2,xs=[],i,d,w,dx,a,k;
   for(i=0;i<ds.length;i++){d=ds[i];w=d.offsetWidth||112;xs.push((d.offsetLeft+w/2-c)/w)}
   for(i=0;i<ds.length;i++){d=ds[i];dx=xs[i];if(Math.abs(dx)>4){if(d._f)continue;d._f=1;d.style.transform="scale(.7)";d.style.opacity=".2";continue}d._f=0;a=Math.min(Math.abs(dx),3);k=Math.max(-1,Math.min(1,dx));
-   d.style.transform=red?"":"perspective(700px) rotateY("+(-k*38).toFixed(1)+"deg) scale("+(1.08-Math.min(a,1.6)*.2).toFixed(3)+")";d.style.opacity=Math.max(.35,1-a*.28).toFixed(2);d.style.zIndex=10-Math.round(a)}};
+   d.style.transform=red?"":"perspective(700px) rotateY("+(-k*38).toFixed(1)+"deg) scale("+(1.15-Math.min(a,1.6)*.2).toFixed(3)+")";d.style.opacity=Math.max(.35,1-a*.28).toFixed(2);d.style.zIndex=10-Math.round(a)}};
  el._u=u;el.addEventListener("scroll",function(){requestAnimationFrame(u)},{passive:true});
  el.addEventListener("click",function(e){var d=e.target.closest&&e.target.closest(".disc");if(!d)return;var c=el.scrollLeft+el.clientWidth/2;
   if(Math.abs(d.offsetLeft+d.offsetWidth/2-c)>d.offsetWidth*.35){e.stopImmediatePropagation();e.stopPropagation();el.scrollTo({left:d.offsetLeft+d.offsetWidth/2-el.clientWidth/2,behavior:"smooth"})}},true);
  requestAnimationFrame(u)}
-var q=0;function run(){if(q)return;q=requestAnimationFrame(function(){q=0;document.querySelectorAll("#plist #discs,#home #discs").forEach(function(e){spot(e);e._u()})})}
+var q=0;function run(){if(q)return;q=requestAnimationFrame(function(){q=0;document.querySelectorAll("#plist #discs,#home #discs,#mk #discs").forEach(function(e){spot(e);e._u()})})}
 new MutationObserver(run).observe(document.body,{childList:true,subtree:true});run()})();
-</script>
-<script>
-/* Random music: zigzag wave animation driven by scroll position */
-(function(){var red=matchMedia("(prefers-reduced-motion:reduce)").matches,box=document.getElementById("mk"),raf=0;if(!box)return;
-function upd(){raf=0;var el=document.getElementById("discs");if(!el||!box.contains(el)||box.hidden)return;el.classList.add("wave");
- var ds=el.querySelectorAll(".disc"),H=innerHeight,W=el.clientWidth,ds0=ds[0]?ds[0].offsetWidth:150,amp=Math.max(0,(W-ds0)/2)*.92;
- for(var i=0;i<ds.length;i++){var d=ds[i],r=d.getBoundingClientRect(),cy=r.top+r.height/2,t=Math.min(1.6,Math.abs(cy-H/2)/(H/2)),
-  x=red?0:Math.sin(i*1.15+cy/150)*amp,sc=1.12-Math.min(1,t)*.45;
-  d.style.transform="translate3d("+x.toFixed(1)+"px,0,0) scale("+sc.toFixed(3)+")";d.style.opacity=Math.max(.25,1-t*.45).toFixed(2)}}
-function q(){if(!raf)raf=requestAnimationFrame(upd)}
-addEventListener("scroll",q,{passive:true});addEventListener("resize",q);
-new MutationObserver(q).observe(box,{childList:true,subtree:true});q()})();
 </script>
 </body>
 </html>
